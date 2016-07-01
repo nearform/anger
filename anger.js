@@ -6,7 +6,7 @@ const Histogram = require('native-hdr-histogram')
 const steed = require('steed')
 const Client = nes.Client
 
-function nesone (opts) {
+function anger (opts) {
   const tracker = new EE()
   const sender = new Client(opts.url)
   sender.connect({}, noop)
@@ -99,4 +99,4 @@ function histAsObj (hist, total) {
 function noop () {
 }
 
-module.exports = nesone
+module.exports = anger

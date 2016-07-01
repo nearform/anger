@@ -1,15 +1,15 @@
 {
-  "name": "nesone",
+  "name": "anger",
   "version": "0.0.1",
   "description": "pub-sub tester for Nes",
-  "main": "nesone.js",
+  "main": "anger.js",
   "scripts": {
     "test": "standard && tap test/*test.js"
   },
   "precommit": "test",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nearform/nesone.git"
+    "url": "git+https://github.com/nearform/anger.git"
   },
   "keywords": [
     "pub",
@@ -24,9 +24,9 @@
   "author": "Matteo Collina <hello@matteocollina.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nearform/nesone/issues"
+    "url": "https://github.com/nearform/anger/issues"
   },
-  "homepage": "https://github.com/nearform/nesone#readme",
+  "homepage": "https://github.com/nearform/anger#readme",
   "devDependencies": {
     "hapi": "^13.4.1",
     "nes": "^6.2.1",

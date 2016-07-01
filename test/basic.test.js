@@ -1,7 +1,7 @@
 'use strict'
 
 const t = require('tap')
-const nesone = require('..')
+const anger = require('..')
 
 require('./server')((err, server) => {
   t.error(err)
@@ -11,7 +11,7 @@ require('./server')((err, server) => {
     path: '/h'
   }
 
-  const instance = nesone({
+  const instance = anger({
     url: server.info.uri,
     subscription: '/greet',
     connections: 10,
