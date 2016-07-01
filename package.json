@@ -1,0 +1,41 @@
+{
+  "name": "nesone",
+  "version": "0.0.1",
+  "description": "pub-sub tester for Nes",
+  "main": "nesone.js",
+  "scripts": {
+    "test": "standard && tap test/*test.js"
+  },
+  "precommit": "test",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nearform/nesone.git"
+  },
+  "keywords": [
+    "pub",
+    "sub",
+    "tester",
+    "latency",
+    "load",
+    "benchmark",
+    "nes",
+    "hapi"
+  ],
+  "author": "Matteo Collina <hello@matteocollina.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nearform/nesone/issues"
+  },
+  "homepage": "https://github.com/nearform/nesone#readme",
+  "devDependencies": {
+    "hapi": "^13.4.1",
+    "nes": "^6.2.1",
+    "pre-commit": "^1.1.3",
+    "standard": "^7.1.2",
+    "tap": "^6.1.0"
+  },
+  "dependencies": {
+    "native-hdr-histogram": "^0.3.0",
+    "steed": "^1.1.3"
+  }
+}
