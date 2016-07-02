@@ -29,12 +29,12 @@
   "homepage": "https://github.com/nearform/anger#readme",
   "devDependencies": {
     "hapi": "^13.4.1",
-    "nes": "^6.2.1",
     "pre-commit": "^1.1.3",
     "standard": "^7.1.2",
     "tap": "^6.1.0"
   },
   "dependencies": {
+    "nes": "^6.2.1",
     "native-hdr-histogram": "^0.3.0",
     "steed": "^1.1.3"
   }

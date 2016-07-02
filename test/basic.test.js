@@ -26,6 +26,8 @@ require('./server')((err, server) => {
       t.end()
     })
 
+    console.log(result)
+
     t.equal(server.count, 1000, 'number of publishes in the server')
 
     t.equal(result.publishes, 1000, 'number of publishes in results')

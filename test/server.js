@@ -5,7 +5,10 @@ const hapi = require('hapi')
 function build (cb) {
   const server = new hapi.Server()
 
-  server.connection({ port: 0 })
+  server.connection({
+    host: 'localhost',
+    port: 0
+  })
 
   server.count = 0
 
