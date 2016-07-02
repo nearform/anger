@@ -4,6 +4,7 @@ const EE = require('events').EventEmitter
 const nes = require('nes')
 const Histogram = require('native-hdr-histogram')
 const steed = require('steed')
+const get = require('lodash.get')
 const Client = nes.Client
 
 function anger (opts) {
@@ -52,7 +53,7 @@ function anger (opts) {
     if (++expected === clients.length * senders.length) {
       return next()
     }
-    const startTime = map[payload[identifier]]
+    const startTime = map[get(payload, identifier)]
     const end = process.hrtime(startTime)
     const responseTime = end[0] * 1e3 + end[1] / 1e6
     latencies.record(responseTime)

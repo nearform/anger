@@ -15,7 +15,7 @@ require('./server')((err, server) => {
     senders: senders,
     connections: connections,
     publishes: publishes,
-    identifier: 'id',
+    identifier: 'meta.id',
     trigger: (sender) => {
       sender.request({
         method: 'POST',
