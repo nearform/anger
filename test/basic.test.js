@@ -5,19 +5,26 @@ const anger = require('..')
 
 require('./server')((err, server) => {
   t.error(err)
-
-  const reqOpts = {
-    method: 'POST',
-    path: '/h'
-  }
-
+  let uid = 0
+  const senders = 2
+  const publishes = 1000
+  const connections = 10
   const instance = anger({
     url: server.info.uri,
     subscription: '/greet',
-    connections: 10,
-    publishes: 1000,
-    trigger: (client) => {
-      client.request(reqOpts)
+    senders: senders,
+    connections: connections,
+    publishes: publishes,
+    identifier: 'id',
+    trigger: (sender) => {
+      sender.request({
+        method: 'POST',
+        path: '/h',
+        payload: {
+          id: ++uid
+        }
+      })
+      return uid
     }
   })
 
@@ -26,12 +33,11 @@ require('./server')((err, server) => {
       t.end()
     })
 
-    console.log(result)
+    t.equal(server.count, senders * publishes, 'number of publishes in the server')
 
-    t.equal(server.count, 1000, 'number of publishes in the server')
-
-    t.equal(result.publishes, 1000, 'number of publishes in results')
-    t.equal(result.connections, 10, 'connections is the same')
+    t.equal(result.publishes, senders * publishes, 'number of publishes in results')
+    t.equal(result.connections, connections, 'connections is the same')
+    t.equal(result.senders, senders, 'senders is the same')
 
     t.ok(result.latency, 'latency exists')
     t.ok(result.latency.average, 'latency.average exists')
