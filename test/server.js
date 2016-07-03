@@ -24,7 +24,7 @@ function build (cb) {
         id: 'hello',
         handler: function (request, reply) {
           server.count++
-          server.publish('/greet', { hello: 'world' })
+          server.publish('/greet', { hello: 'world', meta: { id: request.payload.id } })
           return reply('world!')
         }
       }

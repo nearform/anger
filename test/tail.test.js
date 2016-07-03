@@ -17,7 +17,7 @@ require('./server')((err, server) => {
     connections: connections,
     identifier: (payload) => payload.meta.id,
     requests: 1000,
-    responses: responses,
+    tail: 3000,
     trigger: (sender) => {
       sender.request({
         method: 'POST',

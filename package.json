@@ -34,8 +34,9 @@
     "tap": "^6.1.0"
   },
   "dependencies": {
-    "nes": "^6.2.1",
+    "lodash.get": "^4.3.0",
     "native-hdr-histogram": "^0.3.0",
+    "nes": "^6.2.1",
     "steed": "^1.1.3"
   }
 }
