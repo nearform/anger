@@ -17,8 +17,8 @@ function anger (opts) {
   const latencies = new Histogram(1, 10000, 5)
   const identifier = opts.identifier || 'id'
   const tail = opts.tail || false
-  const expectedResponses = typeof opts.responses === 'number' 
-    ? opts.responses 
+  const expectedResponses = typeof opts.responses === 'number'
+    ? opts.responses
     : opts.connections * opts.requests
   const map = new Map()
   const uidOf = typeof identifier === 'function'
@@ -75,20 +75,20 @@ function anger (opts) {
   }
 
   function next () {
-    if (total === opts.requests) { 
+    if (total === opts.requests) {
       if (tail) setTimeout(complete, tail)
-      return 
+      return
     }
     for (let i = 0; i < senders.length; i++) {
       const uid = opts.trigger(senders[i])
-      total++ 
+      total++
       map.set(uid, process.hrtime())
     }
     expected = 0
     tracker.emit('trigger')
   }
 
-  function complete() {
+  function complete () {
     clients.forEach(disconnect)
     tracker.emit('end', {
       latency: histAsObj(latencies),

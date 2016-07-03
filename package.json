@@ -4,7 +4,7 @@
   "description": "pub-sub tester for Nes",
   "main": "anger.js",
   "scripts": {
-    "test": "tap test/*test.js"
+    "test": "standard && tap test/*test.js"
   },
   "precommit": "test",
   "repository": {
