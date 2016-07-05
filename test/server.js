@@ -37,3 +37,12 @@ function build (cb) {
 }
 
 module.exports = build
+
+if (require.main === module) {
+  build((err, server) => {
+    if (err) {
+      throw err
+    }
+    console.log(`server listening at ${server.info.uri}`)
+  })
+}
