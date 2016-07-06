@@ -63,8 +63,8 @@ function anger (opts) {
     const mapObj = map.get(uidOf(payload))
     totalResponses++
 
-    if (++mapObj.receivedResponses === mapObj.expectedResponses) {
-      tracker.emit('replies', uidOf(payload))
+    if (!--mapObj.expectedResponses) {
+      tracker.emit('publish-events-recieved', uidOf(payload))
 
       if (!tail && totalResponses === expectedResponses) {
         complete()
@@ -96,7 +96,7 @@ function anger (opts) {
   function triggerSender (sender) {
     const uid = opts.trigger(sender)
     if (++totalRequests === opts.requests && tail) setTimeout(complete, tail)
-    map.set(uid, { start: process.hrtime(), sender: sender, expectedResponses: clients.length, receivedResponses: 0, id: uid })
+    map.set(uid, { start: process.hrtime(), sender: sender, expectedResponses: clients.length, id: uid })
 
     // emit trigger every time a client sends a message
     tracker.emit('trigger', uid)
