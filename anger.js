@@ -56,44 +56,58 @@ function anger (opts) {
 
   tracker.on('subscribe', next)
 
-  var expected = 0
-  var total = 0
-  var responses = 0
+  var totalResponses = 0
+  var totalRequests = 0
 
   function handler (payload) {
-    responses++
-    if (++expected === clients.length) {
-      return next()
+    const mapObj = map.get(uidOf(payload))
+    totalResponses++
+
+    if (!--mapObj.expectedResponses) {
+      tracker.emit('publish-events-recieved', uidOf(payload))
+
+      if (!tail && totalResponses === expectedResponses) {
+        complete()
+      }
+
+      return next(mapObj.sender)
     }
-    if (!tail && responses === expectedResponses) {
-      complete()
-    }
-    const startTime = map.get(uidOf(payload))
+
+    const startTime = mapObj.start
     const end = process.hrtime(startTime)
     const responseTime = end[0] * 1e3 + end[1] / 1e6
     latencies.record(responseTime)
   }
 
-  function next () {
-    if (total === opts.requests) {
-      if (tail) setTimeout(complete, tail)
-      return
+  function next (sender) {
+    if (totalRequests === opts.requests) return
+
+    // begin emitting the requests if none have been emitted
+    if (!totalRequests) {
+      for (let i = 0; i < senders.length; i++) {
+        triggerSender(senders[i])
+      }
     }
-    for (let i = 0; i < senders.length; i++) {
-      const uid = opts.trigger(senders[i])
-      total++
-      map.set(uid, process.hrtime())
-    }
-    expected = 0
-    tracker.emit('trigger')
+
+    // if sender is passed in, trigger it
+    if (sender) triggerSender(sender)
+  }
+
+  function triggerSender (sender) {
+    const uid = opts.trigger(sender)
+    if (++totalRequests === opts.requests && tail) setTimeout(complete, tail)
+    map.set(uid, { start: process.hrtime(), sender: sender, expectedResponses: clients.length, id: uid })
+
+    // emit trigger every time a client sends a message
+    tracker.emit('trigger', uid)
   }
 
   function complete () {
     clients.forEach(disconnect)
     tracker.emit('end', {
       latency: histAsObj(latencies),
-      requests: total,
-      responses: responses,
+      requests: totalRequests,
+      responses: totalResponses,
       connections: clients.length,
       senders: opts.senders
     })
