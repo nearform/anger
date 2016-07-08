@@ -1,6 +1,5 @@
 var Hapi = require('hapi')
 var Basic = require('hapi-auth-basic')
-var Bcrypt = require('bcrypt')
 var Nes = require('nes')
 
 function build (cb) {
@@ -18,7 +17,6 @@ function build (cb) {
     var users = {
       john: {
         username: 'john',
-        password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm',   // 'secret'
         name: 'John Doe',
         id: '2133d32a'
       }
@@ -30,9 +28,7 @@ function build (cb) {
         return callback(null, false)
       }
 
-      Bcrypt.compare(password, user.password, function (err, isValid) {
-        callback(err, isValid, { id: user.id, name: user.name })
-      })
+      callback(null, password === 'secret', { id: user.id, name: user.name })
     }
 
     server.auth.strategy('simple', 'basic', 'required', { validateFunc: validate })
