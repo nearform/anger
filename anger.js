@@ -17,6 +17,7 @@ function anger (opts) {
   const latencies = new Histogram(1, 10000, 5)
   const identifier = opts.identifier || 'id'
   const tail = opts.tail || false
+  const auth = opts.auth
   const expectedResponses = typeof opts.responses === 'number'
     ? opts.responses
     : opts.connections * opts.requests
@@ -33,7 +34,7 @@ function anger (opts) {
   }
 
   steed.each(clients, (client, done) => {
-    client.connect({}, done)
+    client.connect({ auth: auth }, done)
   }, (err) => {
     if (err) {
       tracker.emit('error', err)
