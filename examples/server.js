@@ -1,3 +1,5 @@
+'use strict'
+
 const hapi = require('hapi')
 const nes = require('nes')
 const server = new hapi.Server()
