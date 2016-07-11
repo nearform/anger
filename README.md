@@ -73,7 +73,7 @@ Because an anger instance is an `EventEmitter`, it emits several events. these a
 
 ## Sample
 
-Check out [example.js](./example.js) to see an example of this in use with an [example nes server](./exampleServer.js). Note how the server is setup to handle messages by assigning responses the id in the request.
+Check out the examples folder for a simple sample.
 
 ## License
 
