@@ -73,7 +73,7 @@ Because an anger instance is an `EventEmitter`, it emits several events. these a
 
 ## Sample
 
-Check out the examples folder for a simple sample.
+Check out the [examples folder](./examples) for a simple sample.
 
 ## License
 

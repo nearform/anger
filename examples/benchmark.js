@@ -1,6 +1,6 @@
 'use strict'
 
-const anger = require('./')
+const anger = require('../')
 
 let uid = 0
 const instance = anger({
