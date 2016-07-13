@@ -25,4 +25,5 @@ const instance = anger({
 
 instance.on('end', (result) => {
   // do things with result! yay!
+  console.log(result)
 })
