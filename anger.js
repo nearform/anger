@@ -64,6 +64,11 @@ function anger (opts) {
     const mapObj = map.get(uidOf(payload))
     totalResponses++
 
+    const startTime = mapObj.start
+    const end = process.hrtime(startTime)
+    const responseTime = end[0] * 1e3 + end[1] / 1e6
+    latencies.record(responseTime)
+
     if (!--mapObj.expectedResponses) {
       tracker.emit('publish-events-recieved', uidOf(payload))
 
@@ -73,11 +78,6 @@ function anger (opts) {
 
       return next(mapObj.sender)
     }
-
-    const startTime = mapObj.start
-    const end = process.hrtime(startTime)
-    const responseTime = end[0] * 1e3 + end[1] / 1e6
-    latencies.record(responseTime)
   }
 
   function next (sender) {
