@@ -12,7 +12,7 @@ require('./authServer')((err, server) => {
     senders: 1,
     connections: 10,
     identifier: (payload) => payload.meta.id,
-    auth: { headers: { authorization: 'Basic am9objpzZWNyZXQ=' } },
+    auth: () => { return { headers: { authorization: 'Basic am9objpzZWNyZXQ=' } } },
     requests: 1,
     responses: 10,
     trigger: (sender) => {

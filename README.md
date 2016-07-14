@@ -55,7 +55,7 @@ Start an anger instance against a given target.
     * `connections`: The number of connections to maintain to server. Each is an individual nes client.
     * `senders`: The number of connections that should be senders.
     * `responses`: The number of overall expected responses to be recieved during this run.
-    * `auth`: An `Object` passed to the nes client for authentication. [reference.][nes-auth]
+    * `auth`: A `Function` passed to the nes client for authentication. This is passed the `client` and `index` of that client as params. Must return the auth object options. [reference.][nes-auth]
     * `identifier`: A function used to map some payload response data to a requests uid.
     * `trigger`: A function which is passed a nes client to emit a message to the server for testing. Must return some uid of a message sent.
 
