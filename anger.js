@@ -29,14 +29,15 @@ function anger (opts) {
 
   for (let i = 0; i < clients.length; i++) {
     clients[i] = new Client(opts.url)
+    clients[i]['_angerIndex'] = i
     if (i < opts.senders) {
       senders[i] = clients[i]
+      clients[i].sender = true
     }
   }
 
-  let i = 0
   steed.each(clients, (client, done) => {
-    client.connect({ auth: auth(client, i++) }, done)
+    client.connect({ auth: auth(client, client['_angerIndex']) }, done)
   }, (err) => {
     if (err) {
       tracker.emit('error', err)
