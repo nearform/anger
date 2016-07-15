@@ -35,6 +35,7 @@
     "tap": "^6.1.0"
   },
   "dependencies": {
+    "hdr-histogram-percentiles-obj": "^1.0.3",
     "lodash.get": "^4.3.0",
     "native-hdr-histogram": "^0.3.0",
     "nes": "^6.2.1",
