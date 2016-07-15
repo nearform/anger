@@ -37,7 +37,7 @@ test('failed auth', { timeout: 3000 }, (t) => {
       t.ok(err, 'error happened')
     })
 
-    instance.on('end', (result) => {
+    instance.on('end', () => {
       t.fail('end never happens')
     })
   })
