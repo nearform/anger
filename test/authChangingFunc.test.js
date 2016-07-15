@@ -12,7 +12,11 @@ require('./authServer')((err, server) => {
     senders: 1,
     connections: 10,
     identifier: (payload) => payload.meta.id,
-    auth: () => { return { headers: { authorization: `Basic ${new Buffer('john:john', 'utf8').toString('base64')}` } } },
+    auth: (client, i) => {
+      return i % 2
+            ? { headers: { authorization: `Basic ${new Buffer('john:john', 'utf8').toString('base64')}` } }
+            : { headers: { authorization: `Basic ${new Buffer('james:james', 'utf8').toString('base64')}` } }
+    },
     requests: 1,
     responses: 10,
     trigger: (sender) => {
@@ -34,6 +38,8 @@ require('./authServer')((err, server) => {
       t.end()
     })
     t.equal(server.count, 1, 'number of responses from the server')
+    t.equal(server.users.john.signin, 5, 'number of john signins on the server')
+    t.equal(server.users.james.signin, 5, 'number of james signins on the server')
 
     t.equal(result.requests, 1, 'number of requests in results')
     t.equal(result.responses, 10, 'number of responses in results')
