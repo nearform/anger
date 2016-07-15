@@ -18,7 +18,6 @@ function anger (opts) {
   const latencies = new Histogram(1, 10000, 5)
   const identifier = opts.identifier || 'id'
   const tail = opts.tail || false
-  const auth = opts.auth || _noop
   const expectedResponses = typeof opts.responses === 'number'
     ? opts.responses
     : opts.connections * opts.requests
@@ -26,10 +25,13 @@ function anger (opts) {
   const uidOf = typeof identifier === 'function'
     ? identifier
     : (payload) => get(payload, identifier)
+  let auth = _noop
+  if (opts.auth) auth = typeof opts.auth === 'function' ? opts.auth : function () { return opts.auth }
 
   for (let i = 0; i < clients.length; i++) {
     clients[i] = new Client(opts.url)
-    clients[i]['_angerIndex'] = i
+    clients[i]._angerIndex = i
+    clients[i].sender = false
     if (i < opts.senders) {
       senders[i] = clients[i]
       clients[i].sender = true
@@ -37,7 +39,7 @@ function anger (opts) {
   }
 
   steed.each(clients, (client, done) => {
-    client.connect({ auth: typeof auth === 'function' ? auth(client, client['_angerIndex']) : auth }, done)
+    client.connect({ auth: auth(client, client._angerIndex) }, done)
   }, (err) => {
     if (err) {
       tracker.emit('error', err)
