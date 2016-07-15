@@ -33,7 +33,8 @@ function anger (opts) {
     }
   }
 
-  steed.each(clients, (client, done) => {
+  // map because of errors
+  steed.map(clients, (client, done) => {
     client.connect({ auth: auth }, done)
   }, (err) => {
     if (err) {
@@ -43,7 +44,8 @@ function anger (opts) {
 
     tracker.emit('connect')
 
-    steed.each(clients, (client, done) => {
+    // map because of errors
+    steed.map(clients, (client, done) => {
       client.subscribe(opts.subscription, handler, done)
     }, (err) => {
       if (err) {
