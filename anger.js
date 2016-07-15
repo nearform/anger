@@ -3,6 +3,7 @@
 const EE = require('events').EventEmitter
 const nes = require('nes')
 const Histogram = require('native-hdr-histogram')
+const histUtil = require('hdr-histogram-percentiles-obj')
 const steed = require('steed')
 const get = require('lodash.get')
 const Client = nes.Client
@@ -106,7 +107,7 @@ function anger (opts) {
   function complete () {
     clients.forEach(disconnect)
     tracker.emit('end', {
-      latency: histAsObj(latencies),
+      latency: histUtil.addPercentiles(latencies, histUtil.histAsObj(latencies)),
       requests: totalRequests,
       responses: totalResponses,
       connections: clients.length,
@@ -119,22 +120,6 @@ function anger (opts) {
   }
 
   return tracker
-}
-
-// copied from autocannon
-function histAsObj (hist, total) {
-  const result = {
-    average: Math.ceil(hist.mean() * 100) / 100,
-    stddev: Math.ceil(hist.stddev() * 100) / 100,
-    min: hist.min(),
-    max: hist.max()
-  }
-
-  if (typeof total === 'number') {
-    result.total = total
-  }
-
-  return result
 }
 
 module.exports = anger
