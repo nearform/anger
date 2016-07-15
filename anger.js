@@ -37,7 +37,7 @@ function anger (opts) {
   }
 
   steed.each(clients, (client, done) => {
-    client.connect({ auth: auth(client, client['_angerIndex']) }, done)
+    client.connect({ auth: typeof auth === 'function' ? auth(client, client['_angerIndex']) : auth }, done)
   }, (err) => {
     if (err) {
       tracker.emit('error', err)
