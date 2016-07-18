@@ -18,6 +18,7 @@ function anger (opts) {
   const latencies = new Histogram(1, 10000, 5)
   const identifier = opts.identifier || 'id'
   const tail = opts.tail || false
+  const timeout = opts.timeout || false
   const expectedResponses = typeof opts.responses === 'number'
     ? opts.responses
     : opts.connections * opts.requests
@@ -26,6 +27,7 @@ function anger (opts) {
     ? identifier
     : (payload) => get(payload, identifier)
   const auth = getAuth(opts.auth)
+  let timedOutResponses = 0
 
   for (let i = 0; i < clients.length; i++) {
     clients[i] = new Client(opts.url)
@@ -67,18 +69,36 @@ function anger (opts) {
   var totalRequests = 0
 
   function handler (payload) {
-    const mapObj = map.get(uidOf(payload))
+    const uid = uidOf(payload)
+    const mapObj = map.get(uid)
+
+    if (mapObj.finished) return
+
     totalResponses++
 
-    const startTime = mapObj.start
-    const end = process.hrtime(startTime)
-    const responseTime = end[0] * 1e3 + end[1] / 1e6
-    latencies.record(responseTime)
+    recordResponseTime(mapObj.start)
 
     if (!--mapObj.expectedResponses) {
-      tracker.emit('publish-events-recieved', uidOf(payload))
+      mapObj.finished = true
+      if (timeout) clearTimeout(mapObj.timeout)
+      tracker.emit('publish-events-recieved', uid)
 
-      if (!tail && totalResponses === expectedResponses) {
+      if (!tail && totalResponses + timedOutResponses >= expectedResponses) {
+        complete()
+      }
+
+      return next(mapObj.sender)
+    }
+  }
+
+  function handleTimeout (uid) {
+    return function () {
+      const mapObj = map.get(uid)
+      mapObj.finished = true
+      recordResponseTime(mapObj.start)
+
+      timedOutResponses += mapObj.expectedResponses
+      if (!tail && totalResponses + timedOutResponses === expectedResponses) {
         complete()
       }
 
@@ -103,7 +123,16 @@ function anger (opts) {
   function triggerSender (sender) {
     const uid = opts.trigger(sender)
     if (++totalRequests === opts.requests && tail) setTimeout(complete, tail)
-    map.set(uid, { start: process.hrtime(), sender: sender, expectedResponses: clients.length, id: uid })
+    let replyTimeout
+    if (timeout) replyTimeout = setTimeout(handleTimeout(uid), timeout)
+    map.set(uid, {
+      start: process.hrtime(),
+      sender: sender,
+      expectedResponses: clients.length,
+      timeout: replyTimeout,
+      finished: false,
+      id: uid
+    })
 
     // emit trigger every time a client sends a message
     tracker.emit('trigger', uid)
@@ -115,6 +144,7 @@ function anger (opts) {
       latency: histUtil.addPercentiles(latencies, histUtil.histAsObj(latencies)),
       requests: totalRequests,
       responses: totalResponses,
+      timedOutResponses: timedOutResponses,
       connections: clients.length,
       senders: opts.senders
     })
@@ -127,6 +157,12 @@ function anger (opts) {
   function onError (err) {
     clients.forEach(disconnect)
     tracker.emit('error', err)
+  }
+
+  function recordResponseTime (startTime) {
+    const end = process.hrtime(startTime)
+    const responseTime = end[0] * 1e3 + end[1] / 1e6
+    latencies.record(responseTime)
   }
 
   return tracker
