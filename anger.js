@@ -25,21 +25,22 @@ function anger (opts) {
   const uidOf = typeof identifier === 'function'
     ? identifier
     : (payload) => get(payload, identifier)
-  let auth = _noop
-  if (opts.auth) auth = typeof opts.auth === 'function' ? opts.auth : function () { return opts.auth }
+  const auth = getAuth(opts.auth)
 
   for (let i = 0; i < clients.length; i++) {
     clients[i] = new Client(opts.url)
-    clients[i]._angerIndex = i
-    clients[i].sender = false
+    clients[i].anger = {
+      id: i,
+      sender: false
+    }
     if (i < opts.senders) {
       senders[i] = clients[i]
-      clients[i].sender = true
+      clients[i].anger.sender = true
     }
   }
 
   steed.each(clients, (client, done) => {
-    client.connect({ auth: auth(client, client._angerIndex) }, done)
+    client.connect({ auth: auth(client, client.anger.id) }, done)
   }, (err) => {
     if (err) {
       tracker.emit('error', err)
@@ -127,5 +128,17 @@ function anger (opts) {
 }
 
 function _noop () {}
+
+function getAuth (auth) {
+  let ret = _noop
+  if (auth) {
+    if (typeof auth === 'function') {
+      ret = auth
+    } else {
+      ret = function () { return auth }
+    }
+  }
+  return ret
+}
 
 module.exports = anger
