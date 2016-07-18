@@ -81,7 +81,7 @@ function anger (opts) {
     if (!--mapObj.expectedResponses) {
       mapObj.finished = true
       if (timeout) clearTimeout(mapObj.timeout)
-      tracker.emit('publish-events-recieved', uid)
+      tracker.emit('publish-events-received', uid)
 
       if (!tail && totalResponses + timedOutResponses >= expectedResponses) {
         complete()
