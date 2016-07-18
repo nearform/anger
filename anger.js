@@ -34,22 +34,22 @@ function anger (opts) {
     }
   }
 
-  steed.each(clients, (client, done) => {
+  // map because of errors
+  steed.map(clients, (client, done) => {
     client.connect({ auth: auth }, done)
   }, (err) => {
     if (err) {
-      tracker.emit('error', err)
-      return
+      return onError(err)
     }
 
     tracker.emit('connect')
 
-    steed.each(clients, (client, done) => {
+    // map because of errors
+    steed.map(clients, (client, done) => {
       client.subscribe(opts.subscription, handler, done)
     }, (err) => {
       if (err) {
-        tracker.emit('error', err)
-        return
+        return onError(err)
       }
 
       tracker.emit('subscribe')
@@ -117,6 +117,11 @@ function anger (opts) {
 
   function disconnect (client) {
     client.disconnect()
+  }
+
+  function onError (err) {
+    clients.forEach(disconnect)
+    tracker.emit('error', err)
   }
 
   return tracker
