@@ -3,10 +3,18 @@
 const EE = require('events').EventEmitter
 const nes = require('nes')
 const Histogram = require('native-hdr-histogram')
+const tryAgain = require('try-again')
 const histUtil = require('hdr-histogram-percentiles-obj')
 const steed = require('steed')
 const get = require('lodash.get')
 const Client = nes.Client
+const again = tryAgain({
+  retries: 8,
+  max: 10000,
+  jitter: 0.2,
+  factor: 2,
+  min: 100
+})
 
 function anger (opts) {
   if (opts.senders > opts.connections) {
@@ -14,8 +22,10 @@ function anger (opts) {
   }
   const tracker = new EE()
   const clients = new Array(opts.connections)
+  const retries = new Array(opts.connections)
   const senders = new Array(opts.senders)
   const latencies = new Histogram(1, 10000, 5)
+  const connectLatencies = new Histogram(1, 10000, 5)
   const identifier = opts.identifier || 'id'
   const tail = opts.tail || false
   const timeout = opts.timeout || false
@@ -35,6 +45,7 @@ function anger (opts) {
       id: i,
       sender: false
     }
+    retries[i] = 0
     if (i < opts.senders) {
       senders[i] = clients[i]
       clients[i].anger.sender = true
@@ -43,7 +54,22 @@ function anger (opts) {
 
 // map because of errors
   steed.map(clients, (client, done) => {
-    client.connect({ auth: auth(client, client.anger.id) }, done)
+    const startTime = process.hrtime()
+    let numRetries = 0
+    again((success, failure, fatal) => {
+      client.connect({ auth: auth(client, client.anger.id) }, (err) => {
+        if (err) failure(err)
+        else success()
+      })
+    }, (err) => {
+      if (err) {
+        numRetries++
+      } else {
+        connectLatencies.record(process.hrtime(startTime))
+        retries[client.anger.id] = numRetries
+        done()
+      }
+    }, done)
   }, (err) => {
     if (err) {
       return onError(err)
@@ -65,9 +91,8 @@ function anger (opts) {
 
   tracker.on('subscribe', next)
 
-  var totalResponses = 0
-  var totalRequests = 0
-
+  let totalResponses = 0
+  let totalRequests = 0
   function handler (payload) {
     const uid = uidOf(payload)
     const mapObj = map.get(uid)
@@ -145,6 +170,8 @@ function anger (opts) {
       requests: totalRequests,
       responses: totalResponses,
       timedOutResponses: timedOutResponses,
+      connectLatencies: histUtil.addPercentiles(connectLatencies, histUtil.histAsObj(connectLatencies)),
+      retriesAvg: mean(retries),
       connections: clients.length,
       senders: opts.senders
     })
@@ -180,6 +207,10 @@ function getAuth (auth) {
     }
   }
   return ret
+}
+
+function mean (vals) {
+  return vals.reduce((a, b) => a + b) / vals.length
 }
 
 module.exports = anger

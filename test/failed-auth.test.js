@@ -3,7 +3,7 @@
 const test = require('tap').test
 const anger = require('..')
 
-test('failed auth', { timeout: 3000 }, (t) => {
+test('failed auth', { timeout: 20000 }, (t) => {
   t.plan(2)
 
   require('./authServer')((err, server) => {
