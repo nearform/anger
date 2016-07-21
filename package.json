@@ -1,6 +1,6 @@
 {
   "name": "anger",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "pub-sub tester for Nes",
   "main": "anger.js",
   "scripts": {
