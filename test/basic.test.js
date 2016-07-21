@@ -66,5 +66,8 @@ require('./server')((err, server) => {
     t.ok(result.connectLatencies.p999 >= 0, 'connectLatencies.p999 exists')
     t.ok(result.connectLatencies.p9999 >= 0, 'connectLatencies.p9999 exists')
     t.ok(result.connectLatencies.p99999 >= 0, 'connectLatencies.p99999 exists')
+
+    t.ok(result.disconnects >= 0, 'disconnects exist')
+    t.ok(result.reconnects >= 0, 'reconnects exists')
   })
 })
