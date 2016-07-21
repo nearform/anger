@@ -7,14 +7,16 @@ const tryAgain = require('try-again')
 const histUtil = require('hdr-histogram-percentiles-obj')
 const steed = require('steed')
 const get = require('lodash.get')
+const xtend = require('xtend')
 const Client = nes.Client
-const again = tryAgain({
+
+const defaultAgainOpts = {
   retries: 8,
   max: 10000,
   jitter: 0.2,
   factor: 2,
   min: 100
-})
+}
 
 function anger (opts) {
   if (opts.senders > opts.connections) {
@@ -37,6 +39,9 @@ function anger (opts) {
     ? identifier
     : (payload) => get(payload, identifier)
   const auth = getAuth(opts.auth)
+
+  const again = tryAgain(xtend(defaultAgainOpts, opts.retryOpts))
+
   let timedOutResponses = 0
 
   for (let i = 0; i < clients.length; i++) {
