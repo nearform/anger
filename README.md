@@ -58,6 +58,12 @@ Start an anger instance against a given target.
     * `auth`: A `Function` or `Object` passed to the nes client for authentication. If a `Function`, it is passed the `client` and `index` of that client as params. Must return the auth object options. If an `Object`, it must be passed the auth object options. [auth object reference.][nes-auth]
     * `identifier`: A function used to map some payload response data to a requests uid.
     * `trigger`: A function which is passed a nes client to emit a message to the server for testing. Must return some uid of a message sent.
+    * `retryOpts`: An object which is passed to [try-again](try-again) to achieve exponential backoff for retries. [Check the  try-again docs for reference on how to use it.](try-again). Default values below:
+        * `retries`: 8
+        * `max`: 10000
+        * `jitter`: 0.2
+        * `factor`: 2
+        * `min`: 100
 
 **Returns** an instance/event emitter for tracking progress, etc.
 
@@ -81,3 +87,4 @@ Check out the [examples folder](./examples) for a simple sample.
 
 [nes]: https://www.npmjs.com/package/nes
 [nes-auth]: https://github.com/hapijs/nes#client-3
+[try-again]: https://github.com/MatthewMueller/try-again

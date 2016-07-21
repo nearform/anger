@@ -11,6 +11,7 @@ function build (cb) {
   })
 
   server.count = 0
+  server.failedCount = 0
 
   server.register([Basic, Nes], function (err) {
     if (err) { throw err }
@@ -32,6 +33,7 @@ function build (cb) {
     var validate = function (request, username, password, callback) {
       var user = server.users[username]
       if (!user) {
+        server.failedCount++
         return callback(null, false)
       }
       server.users[username].signin++
