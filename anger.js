@@ -74,7 +74,10 @@ function anger (opts) {
       if (err) {
         numRetries++
       } else {
-        connectLatencies.record(process.hrtime(startTime))
+        const end = process.hrtime(startTime)
+        const responseTime = end[0] * 1e3 + end[1] / 1e6
+
+        connectLatencies.record(responseTime)
         retries[client.anger.id] = numRetries
         done()
       }
