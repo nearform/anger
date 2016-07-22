@@ -43,6 +43,8 @@ function anger (opts) {
   const again = tryAgain(xtend(defaultAgainOpts, opts.retryOpts))
 
   let timedOutResponses = 0
+  let disconnects = 0
+  let reconnects = -clients.length // will be 0 after connecting each client
 
   for (let i = 0; i < clients.length; i++) {
     clients[i] = new Client(opts.url)
@@ -51,6 +53,8 @@ function anger (opts) {
       sender: false
     }
     retries[i] = 0
+    clients[i].onDisconnect = () => { disconnects++ }
+    clients[i].onConnect = () => { reconnects++ }
     if (i < opts.senders) {
       senders[i] = clients[i]
       clients[i].anger.sender = true
@@ -70,7 +74,10 @@ function anger (opts) {
       if (err) {
         numRetries++
       } else {
-        connectLatencies.record(process.hrtime(startTime))
+        const end = process.hrtime(startTime)
+        const responseTime = end[0] * 1e3 + end[1] / 1e6
+
+        connectLatencies.record(responseTime)
         retries[client.anger.id] = numRetries
         done()
       }
@@ -178,7 +185,9 @@ function anger (opts) {
       connectLatencies: histUtil.addPercentiles(connectLatencies, histUtil.histAsObj(connectLatencies)),
       retriesAvg: mean(retries),
       connections: clients.length,
-      senders: opts.senders
+      senders: opts.senders,
+      disconnects: disconnects,
+      reconnects: reconnects
     })
   }
 
